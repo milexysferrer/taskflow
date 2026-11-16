@@ -1,15 +1,11 @@
-import { Button } from "../../../../components/ui/Button";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
 import type { Task } from "../../types/task.types";
-import {
-  Card,
-  CardTitle,
-  Description,
-  CardFooter,
-  PriorityBadge,
-  DueDate,
-} from "./TaskCard.styles";
+
+import { Button } from "../../../../components/ui/Button";
+import { TaskCardContent } from "./TaskCardContent";
+import { Card } from "./TaskCard.styles";
 
 interface TaskCardProps {
   task: Task;
@@ -18,14 +14,6 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
-  const formattedDate = task.dueDate
-    ? new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        timeZone: "UTC",
-      }).format(new Date(`${task.dueDate}T00:00:00Z`))
-    : null;
-
   const {
     attributes,
     listeners,
@@ -35,23 +23,28 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
     isDragging,
   } = useSortable({
     id: task.id,
+    data: {
+      type: "task",
+      task,
+    },
   });
 
-  const dragStyle = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   return (
-    <Card ref={setNodeRef} style={dragStyle}>
+    <Card
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.35 : 1,
+      }}
+    >
       <button
         type="button"
         {...attributes}
         {...listeners}
         aria-label={`Drag ${task.title}`}
         style={{
-          cursor: isDragging ? "grabbing" : "grab",
+          cursor: "grab",
           border: "none",
           background: "transparent",
           color: "#64748B",
@@ -62,34 +55,18 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
       >
         ⠿ Drag
       </button>
-      <CardTitle>{task.title}</CardTitle>
 
-      {task.description && <Description>{task.description}</Description>}
+      <TaskCardContent task={task} />
 
-      <CardFooter>
-        <PriorityBadge $priority={task.priority}>
-          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}{" "}
-          Priority
-        </PriorityBadge>
-
-        {formattedDate && <DueDate>📅 {formattedDate}</DueDate>}
-      </CardFooter>
       <div style={{ display: "flex", gap: "8px" }}>
         {onEdit && (
-          <Button
-            variant="secondary"
-            onClick={() => onEdit(task)}
-            aria-label={`Edit ${task.title}`}
-          >
+          <Button variant="secondary" onClick={() => onEdit(task)}>
             Edit
           </Button>
         )}
+
         {onDelete && (
-          <Button
-            variant="danger"
-            onClick={() => onDelete(task.id)}
-            aria-label={`Delete ${task.title}`}
-          >
+          <Button variant="danger" onClick={() => onDelete(task.id)}>
             Delete
           </Button>
         )}

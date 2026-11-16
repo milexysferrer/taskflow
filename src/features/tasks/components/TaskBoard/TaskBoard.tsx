@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { TaskDragOverlay } from "../TaskDragOverlay";
 import {
   DndContext,
   KeyboardSensor,
@@ -5,6 +7,9 @@ import {
   closestCorners,
   useSensor,
   useSensors,
+  DragOverlay,
+  type DragStartEvent,
+  type DragCancelEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
@@ -37,6 +42,7 @@ export function TaskBoard({
   onEdit,
   onMoveTask,
 }: TaskBoardProps) {
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -47,6 +53,7 @@ export function TaskBoard({
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveTask(null);
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;
@@ -87,11 +94,23 @@ export function TaskBoard({
     onMoveTask(movingTask.id, targetStatus, targetIndex);
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const task = tasks.find((item) => item.id === event.active.id);
+
+    setActiveTask(task ?? null);
+  };
+
+  const handleDragCancel = (_event: DragCancelEvent) => {
+    setActiveTask(null);
+  };
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
     >
       <BoardContainer>
         {columns.map((column) => (
@@ -105,6 +124,19 @@ export function TaskBoard({
           />
         ))}
       </BoardContainer>
+
+      <DragOverlay
+        dropAnimation={{
+          duration: 200,
+          easing: "ease-out",
+        }}
+      >
+        {activeTask ? (
+          <div style={{ width: "280px" }}>
+            <TaskDragOverlay task={activeTask} />
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }

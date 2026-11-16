@@ -10,10 +10,13 @@ export const Card = styled.article`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
 
-  transition: box-shadow 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 
   &:hover {
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    border-color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
