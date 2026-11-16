@@ -1,4 +1,5 @@
 import { Button } from "./components/ui/Button";
+import { Input } from "./components/ui/Input";
 
 export default function App() {
   return (
@@ -23,6 +24,32 @@ export default function App() {
 
         <Button disabled>Disabled</Button>
       </div>
+      <section
+        style={{
+          display: "grid",
+          gap: "20px",
+          maxWidth: "400px",
+          marginTop: "40px",
+        }}
+      >
+        <h2>Input Components</h2>
+
+        <Input label="Task title" placeholder="Enter task title" required />
+
+        <Input
+          label="Description"
+          placeholder="Enter a short description"
+          helperText="Give your task a meaningful description."
+        />
+
+        <Input
+          label="Task title"
+          placeholder="Enter task title"
+          error="Task title is required."
+        />
+
+        <Input label="Disabled field" placeholder="Not available" disabled />
+      </section>
     </main>
   );
 }
