@@ -1,5 +1,7 @@
 import { Button } from "./components/ui/Button";
 import { Input } from "./components/ui/Input";
+import { exampleTask } from "./example";
+import { TaskCard } from "./features/tasks/components/TaskCard";
 
 export default function App() {
   return (
@@ -24,6 +26,10 @@ export default function App() {
 
         <Button disabled>Disabled</Button>
       </div>
+      <section style={{ maxWidth: "350px", marginTop: "40px" }}>
+        <h2>Task Card</h2>
+        <TaskCard task={exampleTask} />
+      </section>
       <section
         style={{
           display: "grid",
