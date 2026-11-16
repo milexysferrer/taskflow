@@ -84,8 +84,6 @@ export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
         maxWidth: "440px",
       }}
     >
-      <h2>{isEditing ? "Edit Task" : "Create New Task"}</h2>
-
       <Input
         label="Task title"
         placeholder="Enter task title"
@@ -93,10 +91,8 @@ export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
         error={errors.title?.message}
         {...register("title")}
       />
-
       <div>
         <label htmlFor="task-description">Description</label>
-
         <textarea
           id="task-description"
           {...register("description")}
@@ -107,23 +103,18 @@ export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
             boxSizing: "border-box",
           }}
         />
-
         {errors.description && <p role="alert">{errors.description.message}</p>}
       </div>
-
       <div>
         <label htmlFor="task-priority">Priority</label>
-
         <select id="task-priority" {...register("priority")}>
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
         </select>
       </div>
-
       <div>
         <label htmlFor="task-status">Status</label>
-
         <select id="task-status" {...register("status")}>
           <option value="todo">To Do</option>
           <option value="in-progress">In Progress</option>

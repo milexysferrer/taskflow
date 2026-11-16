@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+import { Button } from "./components/ui/Button";
+import { Modal } from "./components/ui/Modal";
+
 import { TaskBoard } from "./features/tasks/components/TaskBoard";
 import { TaskForm } from "./features/tasks/components/TaskForm";
 import { useTaskStore } from "./features/tasks/store/useTaskStore";
@@ -7,6 +10,7 @@ import { useTaskStore } from "./features/tasks/store/useTaskStore";
 import type { Task } from "./features/tasks/types/task.types";
 
 export default function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const tasks = useTaskStore((state) => state.tasks);
@@ -14,13 +18,28 @@ export default function App() {
   const updateTask = useTaskStore((state) => state.updateTask);
   const deleteTask = useTaskStore((state) => state.deleteTask);
 
+  const handleOpenCreate = () => {
+    setEditingTask(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (task: Task) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   const handleSaveTask = (task: Task) => {
     if (editingTask) {
       updateTask(task.id, task);
-      setEditingTask(null);
     } else {
       addTask(task);
     }
+
+    handleCloseModal();
   };
 
   const handleDeleteTask = (id: string) => {
@@ -34,32 +53,45 @@ export default function App() {
 
     if (confirmed) {
       deleteTask(id);
-
-      if (editingTask?.id === id) {
-        setEditingTask(null);
-      }
     }
   };
 
   return (
     <main style={{ padding: "32px" }}>
-      <h1>TaskFlow</h1>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "16px",
+          marginBottom: "32px",
+        }}
+      >
+        <h1>TaskFlow</h1>
 
-      <TaskForm
-        task={editingTask}
-        onSubmit={handleSaveTask}
-        onCancel={() => setEditingTask(null)}
+        <Button onClick={handleOpenCreate}>+ New Task</Button>
+      </header>
+
+      <TaskBoard
+        tasks={tasks}
+        onDelete={handleDeleteTask}
+        onEdit={handleOpenEdit}
       />
 
-      <section style={{ marginTop: "40px" }}>
-        <h2>My Tasks</h2>
-
-        <TaskBoard
-          tasks={tasks}
-          onDelete={handleDeleteTask}
-          onEdit={setEditingTask}
-        />
-      </section>
+      <Modal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        title={editingTask ? "Edit Task" : "Create New Task"}
+      >
+        {isModalOpen && (
+          <TaskForm
+            key={editingTask?.id ?? "new"}
+            task={editingTask}
+            onSubmit={handleSaveTask}
+            onCancel={handleCloseModal}
+          />
+        )}
+      </Modal>
     </main>
   );
 }
