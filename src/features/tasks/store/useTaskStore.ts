@@ -8,6 +8,11 @@ interface TaskState {
   addTask: (task: Task) => void;
   deleteTask: (id: string) => void;
   updateTask: (id: string, changes: Partial<Task>) => void;
+  moveTask: (
+    taskId: string,
+    targetStatus: Task["status"],
+    targetIndex: number,
+  ) => void;
 }
 
 export const useTaskStore = create<TaskState>()(
@@ -45,6 +50,59 @@ export const useTaskStore = create<TaskState>()(
               : task,
           ),
         })),
+
+      moveTask: (taskId, targetStatus, targetIndex) =>
+        set((state) => {
+          const movingTask = state.tasks.find((task) => task.id === taskId);
+
+          if (!movingTask) return state;
+
+          const otherTasks = state.tasks.filter((task) => task.id !== taskId);
+
+          const targetTasks = otherTasks
+            .filter((task) => task.status === targetStatus)
+            .sort((a, b) => a.order - b.order);
+
+          const insertIndex = Math.max(
+            0,
+            Math.min(targetIndex, targetTasks.length),
+          );
+
+          targetTasks.splice(insertIndex, 0, {
+            ...movingTask,
+            status: targetStatus,
+            updatedAt: new Date().toISOString(),
+          });
+
+          const updatedTargetTasks = targetTasks.map((task, index) => ({
+            ...task,
+            order: index,
+          }));
+
+          const sourceTasks =
+            movingTask.status !== targetStatus
+              ? otherTasks
+                  .filter((task) => task.status === movingTask.status)
+                  .sort((a, b) => a.order - b.order)
+                  .map((task, index) => ({
+                    ...task,
+                    order: index,
+                  }))
+              : [];
+
+          const updatedTasks = new Map(
+            [...updatedTargetTasks, ...sourceTasks].map((task) => [
+              task.id,
+              task,
+            ]),
+          );
+
+          return {
+            tasks: otherTasks
+              .filter((task) => !updatedTasks.has(task.id))
+              .concat([...updatedTasks.values()]),
+          };
+        }),
     }),
     {
       name: "taskflow-tasks",

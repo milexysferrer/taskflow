@@ -19,6 +19,7 @@ export default function App() {
   const addTask = useTaskStore((state) => state.addTask);
   const updateTask = useTaskStore((state) => state.updateTask);
   const deleteTask = useTaskStore((state) => state.deleteTask);
+  const moveTask = useTaskStore((state) => state.moveTask);
 
   const handleOpenCreate = () => {
     setEditingTask(null);
@@ -73,6 +74,7 @@ export default function App() {
             setTaskToDelete(task);
           }
         }}
+        onMoveTask={moveTask}
       />
 
       <Modal

@@ -1,4 +1,6 @@
 import { Button } from "../../../../components/ui/Button";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "../../types/task.types";
 import {
   Card,
@@ -24,8 +26,42 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
       }).format(new Date(`${task.dueDate}T00:00:00Z`))
     : null;
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+  });
+
+  const dragStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
-    <Card>
+    <Card ref={setNodeRef} style={dragStyle}>
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        aria-label={`Drag ${task.title}`}
+        style={{
+          cursor: isDragging ? "grabbing" : "grab",
+          border: "none",
+          background: "transparent",
+          color: "#64748B",
+          padding: "4px",
+          touchAction: "none",
+          alignSelf: "flex-start",
+        }}
+      >
+        ⠿ Drag
+      </button>
       <CardTitle>{task.title}</CardTitle>
 
       {task.description && <Description>{task.description}</Description>}

@@ -1,3 +1,8 @@
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import type { Task, TaskStatus } from "../../types/task.types";
 
 import { TaskCard } from "../TaskCard";
@@ -30,27 +35,43 @@ export function TaskColumn({
     .filter((task) => task.status === status)
     .sort((a, b) => a.order - b.order);
 
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+  });
+
   return (
-    <Column aria-label={`${title} tasks`}>
+    <Column
+      ref={setNodeRef}
+      aria-label={`${title} tasks`}
+      style={{
+        outline: isOver ? "2px solid #6366F1" : "none",
+        outlineOffset: "-2px",
+      }}
+    >
       <ColumnHeader>
         <ColumnTitle>{title}</ColumnTitle>
         <TaskCount>{columnTasks.length}</TaskCount>
       </ColumnHeader>
 
-      <TaskList>
-        {columnTasks.length > 0 ? (
-          columnTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))
-        ) : (
-          <EmptyMessage>No tasks yet</EmptyMessage>
-        )}
-      </TaskList>
+      <SortableContext
+        items={columnTasks.map((task) => task.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <TaskList>
+          {columnTasks.length > 0 ? (
+            columnTasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
+            ))
+          ) : (
+            <EmptyMessage>No tasks yet</EmptyMessage>
+          )}
+        </TaskList>
+      </SortableContext>
     </Column>
   );
 }
