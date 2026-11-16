@@ -5,6 +5,7 @@ import { BoardContainer } from "./TaskBoard.styles";
 interface TaskBoardProps {
   tasks: Task[];
   onDelete?: (id: string) => void;
+  onEdit?: (task: Task) => void;
 }
 
 const columns = [
@@ -13,7 +14,7 @@ const columns = [
   { title: "Done", status: "done" },
 ] as const;
 
-export function TaskBoard({ tasks, onDelete }: TaskBoardProps) {
+export function TaskBoard({ tasks, onDelete, onEdit }: TaskBoardProps) {
   return (
     <BoardContainer>
       {columns.map((column) => (
@@ -23,6 +24,7 @@ export function TaskBoard({ tasks, onDelete }: TaskBoardProps) {
           status={column.status}
           tasks={tasks}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </BoardContainer>

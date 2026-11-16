@@ -12,9 +12,10 @@ import {
 interface TaskCardProps {
   task: Task;
   onDelete?: (id: string) => void;
+  onEdit?: (task: Task) => void;
 }
 
-export function TaskCard({ task, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
   const formattedDate = task.dueDate
     ? new Intl.DateTimeFormat("en-US", {
         month: "short",
@@ -37,15 +38,26 @@ export function TaskCard({ task, onDelete }: TaskCardProps) {
 
         {formattedDate && <DueDate>📅 {formattedDate}</DueDate>}
       </CardFooter>
-      {onDelete && (
-        <Button
-          variant="danger"
-          onClick={() => onDelete(task.id)}
-          aria-label={`Delete ${task.title}`}
-        >
-          Delete
-        </Button>
-      )}
+      <div style={{ display: "flex", gap: "8px" }}>
+        {onEdit && (
+          <Button
+            variant="secondary"
+            onClick={() => onEdit(task)}
+            aria-label={`Edit ${task.title}`}
+          >
+            Edit
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="danger"
+            onClick={() => onDelete(task.id)}
+            aria-label={`Delete ${task.title}`}
+          >
+            Delete
+          </Button>
+        )}
+      </div>
     </Card>
   );
 }
