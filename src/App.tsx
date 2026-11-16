@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { Button } from "./components/ui/Button";
 import { Modal } from "./components/ui/Modal";
+import { ConfirmDialog } from "./components/ui/ConfirmDialog";
 
 import { TaskBoard } from "./features/tasks/components/TaskBoard";
 import { TaskForm } from "./features/tasks/components/TaskForm";
@@ -12,6 +13,7 @@ import type { Task } from "./features/tasks/types/task.types";
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
   const tasks = useTaskStore((state) => state.tasks);
   const addTask = useTaskStore((state) => state.addTask);
@@ -28,10 +30,6 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
   const handleSaveTask = (task: Task) => {
     if (editingTask) {
       updateTask(task.id, task);
@@ -39,21 +37,14 @@ export default function App() {
       addTask(task);
     }
 
-    handleCloseModal();
+    setIsModalOpen(false);
   };
 
-  const handleDeleteTask = (id: string) => {
-    const task = tasks.find((item) => item.id === id);
+  const handleConfirmDelete = () => {
+    if (!taskToDelete) return;
 
-    if (!task) return;
-
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${task.title}"?`,
-    );
-
-    if (confirmed) {
-      deleteTask(id);
-    }
+    deleteTask(taskToDelete.id);
+    setTaskToDelete(null);
   };
 
   return (
@@ -74,8 +65,14 @@ export default function App() {
 
       <TaskBoard
         tasks={tasks}
-        onDelete={handleDeleteTask}
         onEdit={handleOpenEdit}
+        onDelete={(id) => {
+          const task = tasks.find((item) => item.id === id);
+
+          if (task) {
+            setTaskToDelete(task);
+          }
+        }}
       />
 
       <Modal
@@ -88,10 +85,27 @@ export default function App() {
             key={editingTask?.id ?? "new"}
             task={editingTask}
             onSubmit={handleSaveTask}
-            onCancel={handleCloseModal}
+            onCancel={() => setIsModalOpen(false)}
           />
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={Boolean(taskToDelete)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setTaskToDelete(null);
+          }
+        }}
+        title="Delete task?"
+        description={
+          taskToDelete
+            ? `Are you sure you want to delete "${taskToDelete.title}"? This action cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete Task"
+        onConfirm={handleConfirmDelete}
+      />
     </main>
   );
 }
