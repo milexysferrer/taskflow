@@ -15,9 +15,15 @@ interface TaskColumnProps {
   title: string;
   status: TaskStatus;
   tasks: Task[];
+  onDelete?: (id: string) => void;
 }
 
-export function TaskColumn({ title, status, tasks }: TaskColumnProps) {
+export function TaskColumn({
+  title,
+  status,
+  tasks,
+  onDelete,
+}: TaskColumnProps) {
   const columnTasks = tasks
     .filter((task) => task.status === status)
     .sort((a, b) => a.order - b.order);
@@ -31,7 +37,9 @@ export function TaskColumn({ title, status, tasks }: TaskColumnProps) {
 
       <TaskList>
         {columnTasks.length > 0 ? (
-          columnTasks.map((task) => <TaskCard key={task.id} task={task} />)
+          columnTasks.map((task) => (
+            <TaskCard key={task.id} task={task} onDelete={onDelete} />
+          ))
         ) : (
           <EmptyMessage>No tasks yet</EmptyMessage>
         )}

@@ -1,3 +1,4 @@
+import { Button } from "../../../../components/ui/Button";
 import type { Task } from "../../types/task.types";
 import {
   Card,
@@ -10,9 +11,10 @@ import {
 
 interface TaskCardProps {
   task: Task;
+  onDelete?: (id: string) => void;
 }
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, onDelete }: TaskCardProps) {
   const formattedDate = task.dueDate
     ? new Intl.DateTimeFormat("en-US", {
         month: "short",
@@ -35,6 +37,15 @@ export function TaskCard({ task }: TaskCardProps) {
 
         {formattedDate && <DueDate>📅 {formattedDate}</DueDate>}
       </CardFooter>
+      {onDelete && (
+        <Button
+          variant="danger"
+          onClick={() => onDelete(task.id)}
+          aria-label={`Delete ${task.title}`}
+        >
+          Delete
+        </Button>
+      )}
     </Card>
   );
 }
